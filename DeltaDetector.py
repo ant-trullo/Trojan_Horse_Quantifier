@@ -29,16 +29,8 @@ class DeltaDetector:
         spts3[:, 0]   =  0
         spts3[:, -1]  =  0
 
-        spts3       =  remove_small_objects(spts3, 4)                                                   # remove small dots, coming from segmentation
+        spts3       =  remove_small_objects(spts3, 3)                                                   # remove small dots, coming from segmentation
         delta_spts  =  label(spts3)                                                                               # label the remaining connected components
-        rgp_delta   =  regionprops_table(delta_spts, delta_raw, properties=["mean_intensity", "coords"])
-        jjs         =  np.where(rgp_delta["mean_intensity"] < 40)[0]
-        for jj in jjs:
-            delta_spts[rgp_delta["coords"][jj][:, 0], rgp_delta["coords"][jj][:, 1]]  =  0
-
-        for pp in rgp_delta["coords"]:
-            if np.unique(pp[:, 0]).size == 1 or np.unique(pp[:, 1]).size == 1:
-                delta_spts[pp[:, 0], pp[:, 1]]  =  0
 
         self.delta_spts  =  delta_spts
 

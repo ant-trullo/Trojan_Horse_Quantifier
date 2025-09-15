@@ -9,7 +9,6 @@ import sys
 import traceback
 import numpy as np
 import pyqtgraph as pg
-# from PyQt6.QtCore import Qt
 from PyQt6 import QtGui, QtWidgets, QtCore
 from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import QVBoxLayout
@@ -42,10 +41,15 @@ class MainWindow(QtWidgets.QMainWindow):
         save_analysis_action.setStatusTip("Save Analysis")
         save_analysis_action.triggered.connect(self.save_analysis)
 
-        post_stitistics_action  =  QAction(QtGui.QIcon('Icons/save-md.png'), "&Save Analysis", self)
-        post_stitistics_action.setShortcut("Ctrl+S")
-        post_stitistics_action.setStatusTip("Save Analysis")
-        post_stitistics_action.triggered.connect(self.post_stitistics)
+        load_analysis_action  =  QAction(QtGui.QIcon('Icons/save-md.png'), "&Load Analysis", self)
+        load_analysis_action.setShortcut("Ctrl+W")
+        load_analysis_action.setStatusTip("Load Analysis")
+        load_analysis_action.triggered.connect(self.load_analysis)
+
+        post_statistics_action  =  QAction(QtGui.QIcon('Icons/summarize.png'), "&Summarize Analyses", self)
+        post_statistics_action.setShortcut("Ctrl+M")
+        post_statistics_action.setStatusTip("Save Analysis")
+        post_statistics_action.triggered.connect(self.post_statistics)
 
         exit_action  =  QAction(QtGui.QIcon('Icons/exit.png'), "&Exit", self)
         exit_action.setShortcut("Ctrl+Q")
@@ -57,10 +61,11 @@ class MainWindow(QtWidgets.QMainWindow):
         file_menu  =  menubar.addMenu("&File")
         file_menu.addAction(load_data_action)
         file_menu.addAction(save_analysis_action)
+        file_menu.addAction(load_analysis_action)
         file_menu.addAction(exit_action)
 
-        postprocessing_menu  =  menubar.addMenu("&Postprocessing")
-        postprocessing_menu.addAction(post_stitistics_action)
+        postprocessing_menu  =  menubar.addMenu("&PostProcessing")
+        postprocessing_menu.addAction(post_statistics_action)
 
         # ~~~~~~~~~~~ VSV START ~~~~~~~~~~~~ #
         tabs_vsv  =  QtWidgets.QTabWidget()
@@ -91,7 +96,7 @@ class MainWindow(QtWidgets.QMainWindow):
         tabs_vsv.addTab(tab1_vsv, "Raw Data")
         tabs_vsv.addTab(tab2_vsv, "Segmented")
 
-        fname_vsv_lbl  =  QtWidgets.QLabel("VSV ", self)
+        fname_vsv_lbl  =  QtWidgets.QLabel("VSV   ", self)
 
         segment_vsv_btn  =  QtWidgets.QPushButton("Segment", self)
         segment_vsv_btn.setToolTip("Segment vsv virus")
@@ -99,11 +104,11 @@ class MainWindow(QtWidgets.QMainWindow):
         segment_vsv_btn.setFixedSize(int(ksf_h * 130), int(ksf_w * 25))
         segment_vsv_btn.setEnabled(True)
 
-        vsv_filter_btn  =  QtWidgets.QPushButton("Filter", self)
-        vsv_filter_btn.clicked.connect(self.filter_vsv)
-        vsv_filter_btn.setToolTip("Filter segmented vsv viruses")
-        vsv_filter_btn.setFixedSize(int(ksf_h * 130), int(ksf_w * 25))
-        vsv_filter_btn.setEnabled(True)
+        filter_vsv_btn  =  QtWidgets.QPushButton("Filter", self)
+        filter_vsv_btn.clicked.connect(self.filter_vsv)
+        filter_vsv_btn.setToolTip("Filter segmented vsv viruses")
+        filter_vsv_btn.setFixedSize(int(ksf_h * 130), int(ksf_w * 25))
+        filter_vsv_btn.setEnabled(True)
 
         thickness_thr_lbl  =  QtWidgets.QLabel('Thick Thr', self)
         thickness_thr_lbl.setFixedSize(int(ksf_h * 80), int(ksf_w * 25))
@@ -163,7 +168,7 @@ class MainWindow(QtWidgets.QMainWindow):
         keys_vsv.addLayout(up_ratio_thr_box)
         keys_vsv.addLayout(low_ratio_thr_box)
         keys_vsv.addLayout(high_area_thr_box)
-        keys_vsv.addWidget(vsv_filter_btn)
+        keys_vsv.addWidget(filter_vsv_btn)
         keys_vsv.addStretch()
 
         tab_fname_vsv_box  =  QVBoxLayout()
@@ -208,14 +213,14 @@ class MainWindow(QtWidgets.QMainWindow):
 
         fname_delta_lbl  =  QtWidgets.QLabel("DELTA ", self)
 
-        delta_segment_btn  =  QtWidgets.QPushButton("Segment", self)
-        delta_segment_btn.clicked.connect(self.delta_segment)
-        delta_segment_btn.setToolTip("Pop up tool to remove badly reconstructed pseudo cells")
-        delta_segment_btn.setFixedSize(int(ksf_h * 130), int(ksf_w * 25))
-        delta_segment_btn.setEnabled(True)
+        segment_delta_btn  =  QtWidgets.QPushButton("Segment", self)
+        segment_delta_btn.clicked.connect(self.segment_delta)
+        segment_delta_btn.setToolTip("Pop up tool to remove badly reconstructed pseudo cells")
+        segment_delta_btn.setFixedSize(int(ksf_h * 130), int(ksf_w * 25))
+        segment_delta_btn.setEnabled(True)
 
         keys_delta  =  QtWidgets.QVBoxLayout()
-        keys_delta.addWidget(delta_segment_btn)
+        keys_delta.addWidget(segment_delta_btn)
         keys_delta.addStretch()
 
         tab_fname_delta_box  =  QVBoxLayout()
@@ -241,8 +246,6 @@ class MainWindow(QtWidgets.QMainWindow):
         bottom_labels_box.addWidget(pixsize_x_lbl)
         bottom_labels_box.addWidget(pixsize_z_lbl)
         # ~~~~~~~~ END BOTTOM WIDGETS ~~~~~~~~~~ #
-
-
 
         tabs_tot   =  QtWidgets.QTabWidget()
         tab_vsv    =  QtWidgets.QWidget()
@@ -274,6 +277,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pixsize_z_lbl       =  pixsize_z_lbl
         self.fname_vsv_lbl       =  fname_vsv_lbl
         self.fname_delta_lbl     =  fname_delta_lbl
+
+        self.thickness_thr_edt  =  thickness_thr_edt
+        self.up_ratio_thr_edt   =  up_ratio_thr_edt
+        self.low_ratio_thr_edt  =  low_ratio_thr_edt
+        self.high_area_thr_edt  =  high_area_thr_edt
 
         self.soft_version  =  "TrojanHorseQuantifier_v1.0"
 
@@ -345,7 +353,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.frame_delta_segm.clear()
             self.raw_vsv_fname    =  str(QtWidgets.QFileDialog.getOpenFileName(None, "Select raw data VSV file", filter='*.tif *.tiff')[0])
             self.raw_delta_fname  =  str(QtWidgets.QFileDialog.getOpenFileName(None, "Select DELTA file to couple with " + self.raw_vsv_fname[self.raw_vsv_fname.rfind('/') + 1:], filter='*.tif *.tiff')[0])
-            self.fname_vsv_lbl.setText("VSV: " + self.raw_vsv_fname[self.raw_vsv_fname.rfind('/') + 1:])
+            self.fname_vsv_lbl.setText("VSV:   " + self.raw_vsv_fname[self.raw_vsv_fname.rfind('/') + 1:])
             self.fname_delta_lbl.setText("DELTA: " + self.raw_delta_fname[self.raw_delta_fname.rfind('/') + 1:])
             self.raw_data         =  LoadRawData.LoadRawData(self.raw_vsv_fname, self.raw_delta_fname)
 
@@ -392,7 +400,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.ready_indicator()
 
-    def delta_segment(self):
+    def segment_delta(self):
         """Segment delta virus."""
         reload(DeltaDetector)
         self.busy_indicator()
@@ -408,11 +416,48 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.ready_indicator()
 
+    def load_analysis(self):
+        """Load a previously done analysis."""
+        reload(LoadRawData)
+        self.busy_indicator()
+        QtWidgets.QApplication.processEvents()
+
+        try:
+            self.frame_vsv_segm.clear()
+            self.frame_delta_segm.clear()
+            self.raw_vsv_fname    =  str(QtWidgets.QFileDialog.getOpenFileName(None, "Select raw data VSV file", filter='*.tif *.tiff')[0])
+            self.raw_delta_fname  =  str(QtWidgets.QFileDialog.getOpenFileName(None, "Select DELTA file to couple with " + self.raw_vsv_fname[self.raw_vsv_fname.rfind('/') + 1:], filter='*.tif *.tiff')[0])
+            self.fname_vsv_lbl.setText("VSV: " + self.raw_vsv_fname[self.raw_vsv_fname.rfind('/') + 1:])
+            self.fname_delta_lbl.setText("DELTA: " + self.raw_delta_fname[self.raw_delta_fname.rfind('/') + 1:])
+            self.raw_data         =  LoadRawData.LoadRawData(self.raw_vsv_fname, self.raw_delta_fname)
+
+            self.frame_vsv_raw.setImage(self.raw_data.raw_vsv)
+            self.frame_delta_raw.setImage(self.raw_data.raw_delta)
+
+            self.pixsize_x_lbl.setText("pix size XY = " + str(self.raw_data.pix_sizeX))
+            self.pixsize_z_lbl.setText("pix size Z = " + str(self.raw_data.pix_sizeZ))
+
+            load_bff  =  np.load(self.raw_delta_fname.replace("RED", "ANALYSIS")[:-4] + "npz")
+            params    =  load_bff["arr_2"]
+
+            self.thickness_thr_edt.setText(str(params[0]))
+            self.up_ratio_thr_edt.setText(str(params[1]))
+            self.low_ratio_thr_edt.setText(str(params[2]))
+            self.high_area_thr_edt.setText(str(params[3]))
+
+            self.segment_vsv()
+            self.filter_vsv()
+            self.segment_delta()
+
+        except Exception:
+            traceback.print_exc()
+
+
     def save_analysis(self):
         """Save analysis parameters."""
         AnalysisSaver.AnalysisSaver(self.raw_delta_fname, self.segm_vsv.vsv_mask, self.segm_vsv.vsv_diff, self.segm_delta.delta_spts, self.thickness_thr_value, self.up_ratio_thr_value, self.low_ratio_thr_value, self.high_area_thr_value)
 
-    def post_stitistics(self):
+    def post_statistics(self):
         """Prepare a recap xlsx file with colocalization results."""
         analyses_folder  =  str(QtWidgets.QFileDialog.getExistingDirectory(None, "Select the Directory with the Analyses"))
         AnalysisSaver.PostStatistics(analyses_folder, self.soft_version)

@@ -1,0 +1,22 @@
+TrojanHorseQuantifier_v1.0 is an image analysis platform developed to detect and segment VSV virus and Delta virus imaged in confocal microscopy. This software is developed in Python™ 3.9.
+
+TrojanHorseQuantifier_v1.0 was developed on the operating system Linux Debian 12 64-bit and tested on the same system.
+
+Requirements: TrojanHorseQuantifier_v1.0 is written in Python3.9, but should work as well with newer versions of Python3. All the packages used by this software (with their version) are listed in the file requirements.txt.
+
+Install and run TrojanHorseQuantifier_v1.0: 3 different strategies.
+1) Install the packages on real environment: clone the repository and put all the files in a folder, then open a terminal (or the cmd command prompt for Windows users) and move into the folder.
+   In order to install all the required packages run in the terminal the command 'pip install -r requirements.txt',
+   than type 'python3 TrojanHorseQuantifier_GUI_v1_0.py' and press enter. The graphical user interface will pop up and let you work.
+
+2) Use a conda virtual environment: clone the repository and put all the files in a folder, then open a terminal (or the cmd command prompt for Windows users) and move into the folder and generate a conda virtual
+   environment by running 'conda env create -f cellpose3_env.yml'. When the conda environment is ready, activate it with the command 'conda activate cellpose3_env' and finally run 'python3 TrojanHorseQuantifier_GUI_v1_0.py'
+   and press enter. The graphical user interface will pop up and let you work.
+
+3) Use Docker: clone the repository and put all the files in a folder, then open a terminal (or the cmd command prompt for Windows users) and move into the folder and generate a docker image of the software by running
+   'docker build -t trojan_horse_quantifier .'. When the docker image is ready, run it using the command 'docker run --rm -it   -v ~:/HOST  -v /tmp/.X11-unix:/tmp/.X11-unix  -e DISPLAY=$DISPLAY   -u qtuser   trojan_horse_quantifier'
+   The graphical user interface will pop up and let you work. The command you run for in order to launch the docker image can change depending on your operating system, this was checked only on linux Debian 12
+
+Possible issues: Depending on the size of your data and the specifications of your computer, you can have a MemoryError. In this case try to shut down all the other tasks your pc is running and eventually crop your data.
+
+For any question or issue send an email at: antonio.trullo@igmm.cnrs.fr

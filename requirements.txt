@@ -1,0 +1,9 @@
+aicsimageio==4.14.0
+cellpose==3.1.0
+natsort==8.4.0
+numpy==2.3.3
+PyQt6==6.9.1
+PyQt6_sip==13.10.0
+pyqtgraph==0.13.7
+skimage==0.0
+XlsxWriter==3.2.2

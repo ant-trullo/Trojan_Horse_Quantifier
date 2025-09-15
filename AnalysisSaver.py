@@ -52,15 +52,11 @@ class PostStatistics:
 
         sheet_delta.write(0, 0, "File")
         sheet_delta.write(0, 1, "Coloc Raw")
-        sheet_delta.write(0, 2, "Coloc Flip X")
-        sheet_delta.write(0, 3, "Coloc Flip Y")
-        sheet_delta.write(0, 4, "Number of Delta")
+        sheet_delta.write(0, 2, "Number of Delta")
 
         sheet_vsv.write(0, 0, "File")
         sheet_vsv.write(0, 1, "Coloc Raw")
-        sheet_vsv.write(0, 2, "Coloc Flip X")
-        sheet_vsv.write(0, 3, "Coloc Flip Y")
-        sheet_vsv.write(0, 4, "Number of VSV")
+        sheet_vsv.write(0, 2, "Number of VSV")
 
         sheet_info.write(0, 0, "Software Version")
         sheet_info.write(0, 1, soft_version)
@@ -73,25 +69,19 @@ class PostStatistics:
             sheet_vsv.write(1 + file_cnt, 0, file[file.rfind('/') + 1:-4])
             bff_file    =  np.load(file)                                                                                # load the .npz file
             vsv_mask    =  bff_file["arr_0"]                                                                            # read the vsv mask
-            sheet_vsv.write(1 + file_cnt, 4, np.unique(vsv_mask).size - 1)
+            sheet_vsv.write(1 + file_cnt, 2, np.unique(vsv_mask).size - 1)
             delta_mask  =  bff_file["arr_1"]                                                                            # read the delta mask
-            sheet_delta.write(1 + file_cnt, 4, np.unique(delta_mask).size - 1)
+            sheet_delta.write(1 + file_cnt, 2, np.unique(delta_mask).size - 1)
 
             rgp_delta   =  regionprops_table(delta_mask, properties=["label", "centroid"])                              # regionprops of the delta mask
             delta_ctrs  =  np.zeros_like(delta_mask)                                                                    # initialize the matrix of the centroids of the dela
             for id_cnt, id in enumerate(rgp_delta["label"]):
-                # print(id_cnt)
                 x_ctr, y_ctr              =  int(np.round(rgp_delta["centroid-0"][id_cnt])), int(np.round(rgp_delta["centroid-1"][id_cnt]))     # read and approximate as integers the centroids
                 delta_ctrs[x_ctr, y_ctr]  =  id                                                                         # add a pixel with the proper tag in the centrois position
 
             delta_ctrs  =  expand_labels(delta_ctrs, distance=2)                                                        # expand by 2 each label (we consider that a delta is overlapping if its centroid is 2 or fewer pixels far from the delta contour)
             sheet_delta.write(1 + file_cnt, 1, perc_overl(delta_ctrs, vsv_mask))                                        # calculate the overlapping ratio of the delta centroids matrix on the vsv
-            sheet_delta.write(1 + file_cnt, 2, perc_overl(delta_ctrs[::-1], vsv_mask))                                  # do the same, but flipping one matrix in X
-            sheet_delta.write(1 + file_cnt, 3, perc_overl(delta_ctrs[:, ::-1], vsv_mask))                               # as before, but in Y
-
             sheet_vsv.write(1 + file_cnt, 1, perc_overl(vsv_mask, delta_ctrs))                                          # as before, but vsv on delta
-            sheet_vsv.write(1 + file_cnt, 2, perc_overl(vsv_mask[::-1], delta_ctrs))
-            sheet_vsv.write(1 + file_cnt, 3, perc_overl(vsv_mask[:, ::-1], delta_ctrs))
 
         workbook.close()
 

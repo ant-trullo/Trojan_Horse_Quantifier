@@ -19,4 +19,15 @@ Install and run TrojanHorseQuantifier_v1.0: 3 different strategies.
 
 Possible issues: Depending on the size of your data and the specifications of your computer, you can have a MemoryError. In this case try to shut down all the other tasks your pc is running and eventually crop your data.
 
+
+How to use
+Load Data : File -> Load Raw and you will be asked to choose two different images, one for VSV and one for Delta virus, both will be loaded in the frames of the respective tabs
+Segment VSV: just click on the 'Segment' push button, and you will see the results of the segmentation in the 'Segmented' frame. Than you can set your own values to discriminates results, the discarded
+             objects will appear with only their border, so you will know what is gone.
+Segment Delta: just click on the 'Segment' push button, results will be visible in the 'Segmented' frame.
+Save Analysis: File -> Save Analysis will save the results of the analysis, generating a .npz file.
+Load Analysis: File -> Load Analysis you can re load the already done by pointing the raw data and the analysis results.
+Statics: PostProcessing -> Sumerize Analyses you will choose a folder and the software will generate an xlsx file with inside all the results of the colocalization for all the analyses it finds in the folder.
+
+
 For any question or issue send an email at: antonio.trullo@igmm.cnrs.fr

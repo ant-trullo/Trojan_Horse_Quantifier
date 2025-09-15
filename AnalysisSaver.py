@@ -11,6 +11,7 @@ from skimage.morphology import binary_dilation  # , disk
 from skimage.measure import regionprops_table
 from skimage.segmentation import expand_labels
 import xlsxwriter
+from PyQt6 import QtWidgets
 
 
 def perc_overl(img_lbls1, img_lbls2):
@@ -32,7 +33,11 @@ class AnalysisSaver:
             bb_idx  =  np.where(rgp_delta["label"] == bb)[0][0]                                                         # check the index of the tag to remove
             delta_mask[rgp_delta["coords"][bb_idx][:, 0], rgp_delta["coords"][bb_idx][:, 1]] = 0                        # remove thanks to coordinates
 
-        np.savez(raw_delta_fname.replace("RED", "ANALYSIS")[:-5], vsv_mask, delta_mask, np.asarray([thickness_thr_value, up_ratio_thr_value, low_ratio_thr_value, high_area_thr_value]))  # save bith matrices and analmysis parameters as a list
+        if raw_delta_fname.find("RED") != -1:
+            np.savez(raw_delta_fname.replace("RED", "ANALYSIS")[:-5], vsv_mask, delta_mask, np.asarray([thickness_thr_value, up_ratio_thr_value, low_ratio_thr_value, high_area_thr_value]))  # save both matrices and analmysis parameters as a list
+        else:
+            file_name  =  QtWidgets.QFileDialog.getSaveFileName(None, "Choose a file name and a location for it")[0]
+            np.savez(file_name, vsv_mask, delta_mask, np.asarray([thickness_thr_value, up_ratio_thr_value, low_ratio_thr_value, high_area_thr_value]))  # save both matrices and analysis parameters as a list
 
 
 class PostStatistics:
